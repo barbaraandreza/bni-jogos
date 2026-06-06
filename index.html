@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BNI Progresso · Jogos 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#C9A84C;--gl:#E8C97A;--bg:#0E0B0B;--c1:#1F1515;--c2:#1A1212;--bd:#2E1F1F;--tx:#F0E8E0;--mt:#9A8A80;--rd:#E07070}
+body{background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
+.app{max-width:420px;margin:0 auto;padding-bottom:60px}
+.hdr{background:#140808;border-bottom:1px solid var(--bd);padding:18px 16px 14px;text-align:center}
+.hdr h1{font-family:Georgia,serif;font-size:22px;font-weight:700;color:var(--g)}
+.hdr p{font-size:11px;color:var(--mt);margin-top:3px}
+.pad{padding:16px}
+.card{background:var(--c1);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:12px}
+.lbl{font-size:10px;color:var(--mt);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+select,input[type=password]{background:#2A1A1A;color:var(--tx);border:1px solid #3E2F2F;border-radius:8px;padding:12px;font-size:15px;width:100%;outline:none;font-family:inherit}
+select:focus,input:focus{border-color:var(--g)}
+.btn{background:var(--g);color:#1A0A0A;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-top:8px;font-family:inherit;transition:.15s;display:block;text-align:center}
+.btn:active{opacity:.85;transform:scale(.98)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.out{background:transparent;color:var(--g);border:1px solid var(--g)}
+.btn.sm{padding:10px;font-size:13px;margin-top:6px}
+.btn.ghost{background:transparent;color:var(--mt);border:1px solid var(--bd)}
+.back{background:none;border:none;color:var(--mt);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:5px;padding:0;font-family:inherit;margin-bottom:14px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:99;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.5);display:none}
+.toast.ok{background:#1D6A3E;color:#A8EEC8;border:1px solid #2E9A5E}
+.toast.err{background:#6A1D1D;color:#EEA8A8;border:1px solid #9A2E2E}
+.toast.info{background:#1A2A3A;color:#A8C8EE;border:1px solid #2E5A8A}
+.task-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--bd)}
+.task-row:last-child{border-bottom:none}
+.task-name{flex:1;font-size:13px;line-height:1.4}
+.task-pts{font-size:11px;font-weight:700;min-width:36px;text-align:right;color:var(--gl)}
+.task-pts.neg{color:var(--rd)}
+.chk{width:24px;height:24px;border-radius:6px;border:2px solid var(--bd);background:#2A1A1A;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;transition:.15s;user-select:none}
+.chk.on{background:var(--g);border-color:var(--g);color:#1A0A0A}
+.chk.neg.on{background:var(--rd);border-color:var(--rd);color:#fff}
+.ctr{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.ctr button{width:28px;height:28px;border-radius:50%;border:1px solid var(--bd);background:#2A1A1A;color:var(--tx);cursor:pointer;font-size:16px;line-height:1}
+.ctr button:disabled{opacity:.3;cursor:not-allowed}
+.ctr span{min-width:22px;text-align:center;font-weight:700;font-size:15px}
+.sticky-total{position:sticky;bottom:0;background:#0E0B0B;border-top:1px solid var(--bd);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.total-num{font-size:26px;font-weight:700;font-family:Georgia,serif;color:var(--g)}
+.total-num.neg{color:var(--rd)}
+.weeks-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.wk{background:var(--c2);border-radius:8px;padding:8px 4px;border:1px solid var(--bd);text-align:center;cursor:pointer;transition:.15s}
+.wk.act{border-color:var(--g);background:#1A1008}
+.wk.done{border-color:#2E5A2E}
+.wk .wn{font-size:11px;font-weight:700;color:var(--g)}
+.wk.done .wn{color:#5A9A5A}
+.wk .wd{font-size:9px;color:var(--mt);margin-top:1px}
+.wk .wp{font-size:13px;font-weight:700;color:var(--gl);margin-top:2px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.stat{background:var(--c2);border-radius:10px;padding:12px;text-align:center}
+.stat .n{font-size:22px;font-weight:700;color:var(--g);font-family:Georgia,serif}
+.stat .l{font-size:10px;color:var(--mt);margin-top:2px}
+.rank-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.rank-row:last-child{border-bottom:none}
+.rank-num{font-size:16px;font-weight:700;min-width:28px;color:var(--mt)}
+.tm-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.divider{height:1px;background:var(--bd);margin:12px 0}
+.pin-input{text-align:center;font-size:28px;letter-spacing:10px;font-weight:700}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--bd);border-top-color:var(--g);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.pair-hint{font-size:11px;color:#9A6A20;padding-bottom:4px;margin-top:-4px}
+.view{display:none}
+.view.active{display:block}
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="toast" class="toast"></div>
+
+  <!-- HOME -->
+  <div id="v-home" class="view active">
+    <div class="hdr">
+      <h1>BNI Progresso</h1>
+      <p>Jogos BNI · Jun — Jul 2026 · 8 semanas</p>
+    </div>
+    <div class="pad">
+      <div style="text-align:center;padding:20px 0 14px">
+        <div style="font-size:48px;margin-bottom:8px">🏆</div>
+        <div style="font-size:19px;font-weight:700;color:#C9A84C;font-family:Georgia,serif">Sistema de Pontuação</div>
+        <div style="font-size:13px;color:#9A8A80;margin-top:6px;line-height:1.6">Registre seus pontos semanais<br>e contribua para o seu time</div>
+      </div>
+      <div class="card">
+        <div class="lbl">Times</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px" id="home-teams"></div>
+      </div>
+      <div class="card">
+        <div class="lbl">Calendário · Fechamento toda sexta</div>
+        <div class="weeks-grid" id="home-weeks"></div>
+      </div>
+      <button class="btn" onclick="showView('v-select')">Entrar como membro</button>
+      <button class="btn ghost sm" onclick="showView('v-pin')" style="margin-top:6px">Acesso admin</button>
+    </div>
+  </div>
+
+  <!-- SELECT MEMBER -->
+  <div id="v-select" class="view">
+    <div class="hdr"><h1>Identificação</h1><p>Selecione seu nome</p></div>
+    <div class="pad">
+      <button class="back" onclick="showView('v-home')">← Voltar</button>
+      <div class="card">
+        <div class="lbl">Seu nome</div>
+        <select id="sel-member" onchange="onMemberSelect()">
+          <option value="">— Selecione —</option>
+        </select>
+        <div id="sel-team" style="margin-top:10px;display:none;align-items:center;gap:8px">
+          <span style="font-size:12px;color:#9A8A80">Seu time:</span>
+          <span id="sel-team-badge" class="badge"></span>
+        </div>
+        <button class="btn" id="btn-acessar" onclick="handleLogin()" disabled>Acessar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="v-dashboard" class="view">
+    <div class="hdr">
+      <h1 id="dash-greeting">Olá!</h1>
+      <p id="dash-team"></p>
+    </div>
+    <div class="pad">
+      <div class="stat-grid">
+        <div class="stat"><div class="n" id="dash-total">0</div><div class="l">pts acumulados</div></div>
+        <div class="stat"><div class="n" id="dash-weeks">0/8</div><div class="l">semanas registradas</div></div>
+      </div>
+      <div class="card">
+        <div class="lbl">Semana ativa</div>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:22px;font-weight:700;color:#C9A84C;font-family:Georgia,serif" id="dash-cw-label">Semana 1</span>
+          <span style="font-size:12px;color:#9A8A80" id="dash-cw-date"></span>
+        </div>
+        <div id="dash-cw-status" style="font-size:13px;color:#9A8A80;margin-bottom:8px">Ainda não registrada</div>
+        <button class="btn" id="dash-cw-btn" onclick="goLogCw()">Registrar →</button>
+      </div>
+      <div class="card">
+        <div class="lbl">Todas as semanas</div>
+        <div class="weeks-grid" id="dash-weeks-grid"></div>
+        <div style="font-size:11px;color:#9A8A80;text-align:center">Toque em qualquer semana para registrar</div>
+      </div>
+      <button class="btn out sm" onclick="showView('v-history')">Ver histórico detalhado</button>
+      <button class="btn ghost sm" onclick="handleLogout()" style="margin-top:6px">Sair</button>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div id="v-log" class="view">
+    <div class="hdr">
+      <h1 id="log-title">Semana 1</h1>
+      <p id="log-subtitle"></p>
+    </div>
+    <div class="pad">
+      <button class="back" onclick="showView('v-dashboard')">← Voltar</button>
+      <div class="card">
+        <div class="lbl">Tarefas</div>
+        <div id="log-tasks-pos"></div>
+      </div>
+      <div class="card" style="border:1px solid #3E1F1F">
+        <div class="lbl" style="color:#E07070">Penalidades</div>
+        <div id="log-tasks-neg"></div>
+      </div>
+    </div>
+    <div class="sticky-total">
+      <div>
+        <div style="font-size:11px;color:#9A8A80;margin-bottom:2px" id="log-total-label">Total semana 1</div>
+        <div class="total-num" id="log-total">0 pts</div>
+      </div>
+      <button class="btn" style="width:auto;padding:12px 24px;margin-top:0" id="btn-save" onclick="handleSave()">Salvar</button>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="v-history" class="view">
+    <div class="hdr"><h1>Meu Histórico</h1><p id="hist-member"></p></div>
+    <div class="pad">
+      <button class="back" onclick="showView('v-dashboard')">← Voltar</button>
+      <div class="card">
+        <div class="lbl">Pontos por semana</div>
+        <div class="weeks-grid" id="hist-weeks-grid"></div>
+        <div class="divider"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:13px;color:#9A8A80">Total acumulado</span>
+          <span style="font-size:22px;font-weight:700;color:#C9A84C;font-family:Georgia,serif" id="hist-total">0 pts</span>
+        </div>
+      </div>
+      <div id="hist-detail"></div>
+    </div>
+  </div>
+
+  <!-- PIN -->
+  <div id="v-pin" class="view">
+    <div class="hdr"><h1>Admin</h1><p>Acesso restrito</p></div>
+    <div class="pad">
+      <button class="back" onclick="showView('v-home')">← Voltar</button>
+      <div class="card">
+        <div class="lbl">PIN</div>
+        <input type="password" class="pin-input" id="pin-input" maxlength="4" placeholder="••••"
+          oninput="if(this.value.length===4)handlePin()">
+        <button class="btn" onclick="handlePin()">Entrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="v-admin" class="view">
+    <div class="hdr"><h1>Painel Admin</h1><p>Jogos BNI Progresso 2026</p></div>
+    <div class="pad">
+      <button class="back" onclick="showView('v-home')">← Sair do admin</button>
+      <div style="display:flex;gap:5px;margin-bottom:14px">
+        <button class="btn sm" id="tab-ranking" onclick="setAdminTab('ranking')" style="flex:1;margin-top:0">Ranking</button>
+        <button class="btn sm out" id="tab-membros" onclick="setAdminTab('membros')" style="flex:1;margin-top:0">Individual</button>
+      </div>
+      <div id="admin-ranking">
+        <div class="card">
+          <div class="lbl">Semana ativa</div>
+          <div class="weeks-grid" id="admin-weeks"></div>
+          <div style="font-size:11px;color:#9A8A80;text-align:center">Toque para ativar uma semana</div>
+        </div>
+        <div class="card" id="admin-placar">
+          <div class="lbl">Placar dos times</div>
+          <div style="text-align:center;padding:20px;color:#9A8A80"><span class="spin"></span> Carregando...</div>
+        </div>
+        <button class="btn out sm" onclick="loadAdminData()">↻ Atualizar placar</button>
+      </div>
+      <div id="admin-membros" style="display:none">
+        <div class="card" id="admin-individual">
+          <div class="lbl">Ranking individual</div>
+          <div style="text-align:center;padding:20px;color:#9A8A80"><span class="spin"></span> Carregando...</div>
+        </div>
+        <button class="btn out sm" onclick="loadAdminData()">↻ Atualizar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SHEET="https://script.google.com/macros/s/AKfycbw0U6qAZewTeLlCD5_UIYNjelsJ3oX_6IzNX6QqoMEXziJWXRDHedwOWOxWyXVzwepx/exec";
+const ADMIN_PIN="1234";
+
+const MEMBERS=["Adriana Lima","Alice Crepaldi","Ana Catarina","Ana Júlia Brandão","André Dias","Ângela Luisa Ferreira","Ardilene Rodrigues","Bárbara Andreza","Bernardo Bracher","Camila Fontes","Douglas Andrade Maia","Eduardo Viana","Elis Xavier","Elizabete Godinho","Emanuel Leite","Euler Costa","Gardeny Coura","Glauber Fonseca","Guilherme Ribeiro","Ingrid Figueiredo","Jacqueline Mesquita","João Gabriel Santana","Joaquim Correa","Marcelo Labarrère","Maria Cristina","Mariana Gontijo Couto","Marli Assis","Natielly Danig","Nina Hangai","Nina Peixoto","Rafaella Freire Dutra","Rodrigo Ferrarez","Vinícius Villaca"];
+
+const WEEKS=[{n:1,c:"12/06"},{n:2,c:"19/06"},{n:3,c:"26/06"},{n:4,c:"03/07"},{n:5,c:"10/07"},{n:6,c:"17/07"},{n:7,c:"24/07"},{n:8,c:"31/07"}];
+
+const TASKS=[
+  {id:"t01",label:"Chegar à reunião até 6:35",pts:1,type:"check"},
+  {id:"t02",label:"Crachá e Pin",pts:1,type:"check"},
+  {id:"t03",label:"Pitch selecionado (concorrer ao melhor da semana)",pts:1,type:"check"},
+  {id:"t04",label:"Pitch vencedor da semana",pts:2,type:"check"},
+  {id:"t05",label:"2 UEG por semana",pts:1,type:"check"},
+  {id:"t06",label:"1a1 com membros do Progresso",pts:1,type:"counter_pair",step:2},
+  {id:"t07",label:"Referências para membros do Progresso",pts:1,type:"counter_pair",step:2},
+  {id:"t08",label:"Assistir a treinamentos ao vivo",pts:2,type:"check"},
+  {id:"t09",label:"Convidado",pts:5,type:"counter"},
+  {id:"t10",label:"Convidado específico (dia do convidado focado)",pts:6,type:"counter"},
+  {id:"t11",label:"Convidado entrar para o grupo",pts:8,type:"counter"},
+  {id:"t12",label:"Verde no semáforo",pts:4,type:"check"},
+  {id:"t13",label:"Network Notável",pts:3,type:"check"},
+  {id:"t14",label:"Destaque da semana",pts:2,type:"check"},
+  {id:"t15",label:"Subir mais de 15 pontos no semáforo",pts:2,type:"check"},
+  {id:"t16",label:"Participar de eventos externos",pts:2,type:"counter"},
+  {id:"t19",label:"100% do Perfil Conect preenchido",pts:10,type:"check"},
+  {id:"t17",label:"Ausência sem substituição",pts:-5,type:"check",neg:true},
+  {id:"t18",label:"Nenhuma contribuição semanal",pts:-2,type:"check",neg:true},
+];
+
+const TEAMS=[
+  {id:"marrocos",label:"🇲🇦 Marrocos",bg:"#C9A84C",fg:"#1A0A0A"},
+  {id:"japao",   label:"🇯🇵 Japão",   bg:"#BC002D",fg:"#F0E8E0"},
+  {id:"suica",   label:"🇨🇭 Suíça",   bg:"#D52B1E",fg:"#F0E8E0"},
+  {id:"canada",  label:"🇨🇦 Canadá",  bg:"#8B1A1A",fg:"#F0E8E0"},
+  {id:"senegal", label:"🇸🇳 Senegal", bg:"#00853F",fg:"#F0E8E0"},
+];
+
+function slugify(n){return n.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'_').replace(/_+/g,'_')}
+
+const ASSIGN={
+  [slugify("Marcelo Labarrère")]:"marrocos",[slugify("Ana Júlia Brandão")]:"marrocos",
+  [slugify("Guilherme Ribeiro")]:"marrocos",[slugify("Ardilene Rodrigues")]:"marrocos",
+  [slugify("Rafaella Freire Dutra")]:"marrocos",[slugify("André Dias")]:"marrocos",
+  [slugify("Emanuel Leite")]:"japao",[slugify("Natielly Danig")]:"japao",
+  [slugify("Glauber Fonseca")]:"japao",[slugify("Nina Hangai")]:"japao",
+  [slugify("Maria Cristina")]:"japao",[slugify("Jacqueline Mesquita")]:"japao",
+  [slugify("Eduardo Viana")]:"suica",[slugify("Bárbara Andreza")]:"suica",
+  [slugify("Nina Peixoto")]:"suica",[slugify("Rodrigo Ferrarez")]:"suica",
+  [slugify("Vinícius Villaca")]:"suica",[slugify("Ângela Luisa Ferreira")]:"suica",
+  [slugify("Joaquim Correa")]:"suica",
+  [slugify("Adriana Lima")]:"canada",[slugify("Elis Xavier")]:"canada",
+  [slugify("Mariana Gontijo Couto")]:"canada",[slugify("Marli Assis")]:"canada",
+  [slugify("Camila Fontes")]:"canada",[slugify("Elizabete Godinho")]:"canada",
+  [slugify("Ingrid Figueiredo")]:"canada",
+  [slugify("Bernardo Bracher")]:"marrocos",[slugify("Euler Costa")]:"senegal",
+  [slugify("Alice Crepaldi")]:"senegal",[slugify("João Gabriel Santana")]:"senegal",
+  [slugify("Ana Catarina")]:"senegal",[slugify("Gardeny Coura")]:"senegal",
+  [slugify("Douglas Andrade Maia")]:"senegal",
+};
+
+// ── State ─────────────────────────────────────────────────────
+let state={member:null,cw:1,saved:{},logWeek:1,logTasks:{},adminData:{}};
+
+// ── API ───────────────────────────────────────────────────────
+async function api(params){
+  const qs=Object.entries(params).map(([k,v])=>encodeURIComponent(k)+"="+encodeURIComponent(String(v))).join("&");
+  const r=await fetch(SHEET+"?"+qs);
+  return r.json();
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg,type="ok"){
+  const el=document.getElementById("toast");
+  el.textContent=msg;
+  el.className="toast "+type;
+  el.style.display="block";
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.style.display="none",3200);
+}
+
+// ── Views ─────────────────────────────────────────────────────
+function showView(id){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function getTeam(id){return TEAMS.find(t=>t.id===id)}
+function teamBadge(id){
+  const t=getTeam(id);
+  if(!t)return '<span style="font-size:11px;color:#9A8A80">Sem time</span>';
+  return `<span class="badge" style="background:${t.bg};color:${t.fg};font-size:12px">${t.label}</span>`;
+}
+function calcTotal(tasks){
+  return TASKS.reduce((s,t)=>{
+    const v=tasks[t.id]||0;
+    if(t.type==="check")return s+(v?t.pts:0);
+    if(t.type==="counter")return s+v*t.pts;
+    if(t.type==="counter_pair")return s+Math.floor(v/t.step)*t.pts;
+    return s;
+  },0);
+}
+function calcPts(t,v){
+  if(t.type==="check")return v?t.pts:0;
+  if(t.type==="counter")return v*t.pts;
+  if(t.type==="counter_pair")return Math.floor(v/t.step)*t.pts;
+  return 0;
+}
+
+// ── Init ──────────────────────────────────────────────────────
+function init(){
+  // Home teams
+  const ht=document.getElementById("home-teams");
+  ht.innerHTML=TEAMS.map(t=>`<span class="badge" style="background:${t.bg};color:${t.fg}">${t.label}</span>`).join("");
+
+  // Home weeks
+  const hw=document.getElementById("home-weeks");
+  hw.innerHTML=WEEKS.map(w=>`<div class="wk"><div class="wn">S${w.n}</div><div class="wd">${w.c}</div></div>`).join("");
+
+  // Member select
+  const sel=document.getElementById("sel-member");
+  MEMBERS.forEach(m=>{
+    const o=document.createElement("option");
+    o.value=m; o.textContent=m;
+    sel.appendChild(o);
+  });
+
+  // Load current week from sheets
+  api({action:"loadConfig"}).then(r=>{
+    if(r?.ok && r.data?.currentWeek) state.cw=Number(r.data.currentWeek);
+  }).catch(()=>{});
+}
+
+// ── Select member ─────────────────────────────────────────────
+function onMemberSelect(){
+  const m=document.getElementById("sel-member").value;
+  const teamDiv=document.getElementById("sel-team");
+  const btn=document.getElementById("btn-acessar");
+  if(m){
+    const tid=ASSIGN[slugify(m)];
+    document.getElementById("sel-team-badge").innerHTML=teamBadge(tid);
+    document.getElementById("sel-team-badge").style.cssText="";
+    const t=getTeam(tid);
+    if(t){document.getElementById("sel-team-badge").style.background=t.bg;document.getElementById("sel-team-badge").style.color=t.fg}
+    teamDiv.style.display="flex";
+    btn.disabled=false;
+  } else {
+    teamDiv.style.display="none";
+    btn.disabled=true;
+  }
+}
+
+async function handleLogin(){
+  const m=document.getElementById("sel-member").value;
+  if(!m)return;
+  const btn=document.getElementById("btn-acessar");
+  btn.disabled=true;
+  btn.innerHTML='<span class="spin"></span>Carregando...';
+  showToast("Carregando seus dados...","info");
+  try{
+    const r=await api({action:"load",member:m});
+    state.member=m;
+    state.saved=r?.ok && r.data ? r.data : {};
+  }catch(e){
+    state.member=m;
+    state.saved={};
+    showToast("Erro ao carregar dados","err");
+  }
+  btn.disabled=false;
+  btn.textContent="Acessar";
+  renderDashboard();
+  showView("v-dashboard");
+  setTimeout(()=>document.getElementById("toast").style.display="none",100);
+}
+
+// ── Dashboard ─────────────────────────────────────────────────
+function renderDashboard(){
+  const m=state.member, cw=state.cw, saved=state.saved;
+  const tid=ASSIGN[slugify(m)];
+  const totalPts=Object.values(saved).reduce((s,w)=>s+(Number(w.total)||0),0);
+  const wLogged=Object.keys(saved).length;
+  const wData=WEEKS[cw-1];
+
+  document.getElementById("dash-greeting").textContent="Olá, "+m.split(" ")[0]+"!";
+  document.getElementById("dash-team").innerHTML=teamBadge(tid);
+  document.getElementById("dash-total").textContent=totalPts;
+  document.getElementById("dash-weeks").textContent=wLogged+"/8";
+  document.getElementById("dash-cw-label").textContent="Semana "+cw;
+  document.getElementById("dash-cw-date").textContent="Fecha "+wData?.c;
+
+  const hasCw=saved[cw];
+  document.getElementById("dash-cw-status").textContent=hasCw?"✓ Registrada · "+saved[cw].total+" pts":"Ainda não registrada";
+  document.getElementById("dash-cw-status").style.color=hasCw?"#5A9A5A":"#9A8A80";
+  document.getElementById("dash-cw-btn").textContent=hasCw?"Editar Semana "+cw+" →":"Registrar Semana "+cw+" →";
+
+  // Weeks grid
+  const g=document.getElementById("dash-weeks-grid");
+  g.innerHTML=WEEKS.map(w=>{
+    const p=saved[w.n]?.total;
+    const cls="wk"+(w.n===cw?" act":"")+(saved[w.n]?" done":"");
+    return `<div class="${cls}" onclick="goLogWeek(${w.n})">
+      <div class="wn">S${w.n}</div>
+      <div class="wd">${w.c}</div>
+      <div class="wp">${p!=null?p+"pt":"—"}</div>
+    </div>`;
+  }).join("");
+}
+
+function goLogCw(){goLogWeek(state.cw)}
+function goLogWeek(w){
+  state.logWeek=w;
+  state.logTasks=state.saved[w]?.tasks ? {...state.saved[w].tasks} : {};
+  renderLogView();
+  showView("v-log");
+}
+
+// ── Log view ──────────────────────────────────────────────────
+function renderLogView(){
+  const w=state.logWeek;
+  const wData=WEEKS[w-1];
+  document.getElementById("log-title").textContent="Semana "+w;
+  document.getElementById("log-subtitle").textContent="Fecha "+wData?.c+" · "+state.member.split(" ")[0];
+  document.getElementById("log-total-label").textContent="Total semana "+w;
+
+  function taskHTML(t){
+    const v=state.logTasks[t.id]||0;
+    const earned=calcPts(t,v);
+    const ptsLabel=(earned!==0?`<div class="task-pts${t.neg?" neg":""}">${earned>0?"+":""}${earned}pt</div>`:"");
+    let ctrl="";
+    if(t.type==="check"){
+      ctrl=`<div class="chk${v?" on":""}${t.neg?" neg":""}" onclick="toggleTask('${t.id}')">${v?"✓":""}</div>`;
+    } else {
+      ctrl=`<div class="ctr">
+        <button onclick="decTask('${t.id}')" ${!v?"disabled":""}>−</button>
+        <span id="ctr-${t.id}">${v}</span>
+        <button onclick="incTask('${t.id}')">+</button>
+      </div>`;
+    }
+    const hint=(t.type==="counter_pair"&&v>0)?`<div class="pair-hint">→ ${v} realizados · ${Math.floor(v/t.step)} pt acumulados</div>`:"";
+    return `<div>
+      <div class="task-row">
+        <div class="task-name"${t.neg?' style="color:#E07070"':''}>${t.label}</div>
+        ${ptsLabel}${ctrl}
+      </div>${hint}
+    </div>`;
+  }
+
+  document.getElementById("log-tasks-pos").innerHTML=TASKS.filter(t=>!t.neg).map(taskHTML).join("");
+  document.getElementById("log-tasks-neg").innerHTML=TASKS.filter(t=>t.neg).map(taskHTML).join("");
+  updateLogTotal();
+}
+
+function toggleTask(id){
+  state.logTasks[id]=state.logTasks[id]?0:1;
+  renderLogView();
+}
+function incTask(id){state.logTasks[id]=(state.logTasks[id]||0)+1;renderLogView()}
+function decTask(id){state.logTasks[id]=Math.max(0,(state.logTasks[id]||0)-1);renderLogView()}
+function updateLogTotal(){
+  const total=calcTotal(state.logTasks);
+  const el=document.getElementById("log-total");
+  el.textContent=total+" pts";
+  el.className="total-num"+(total<0?" neg":"");
+}
+
+async function handleSave(){
+  const btn=document.getElementById("btn-save");
+  btn.disabled=true;
+  btn.innerHTML='<span class="spin"></span>Salvando...';
+  const total=calcTotal(state.logTasks);
+  const teamId=ASSIGN[slugify(state.member)]||"";
+  try{
+    const r=await api({
+      action:"save",
+      member:state.member,
+      week:state.logWeek,
+      total,
+      team:teamId,
+      tasks:JSON.stringify(state.logTasks)
+    });
+    if(r?.ok){
+      state.saved[state.logWeek]={tasks:{...state.logTasks},total};
+      showToast("✓ Semana "+state.logWeek+" salva! "+total+" pts");
+      renderDashboard();
+      showView("v-dashboard");
+    } else {
+      showToast("Erro: "+(r?.error||"tente novamente"),"err");
+    }
+  }catch(e){
+    showToast("Erro de conexão. Tente novamente.","err");
+  }
+  btn.disabled=false;
+  btn.textContent="Salvar";
+}
+
+// ── History ───────────────────────────────────────────────────
+function renderHistory(){
+  document.getElementById("hist-member").textContent=state.member;
+  const saved=state.saved;
+  const total=Object.values(saved).reduce((s,w)=>s+(Number(w.total)||0),0);
+  document.getElementById("hist-total").textContent=total+" pts";
+
+  document.getElementById("hist-weeks-grid").innerHTML=WEEKS.map(w=>{
+    const p=saved[w.n]?.total;
+    return `<div class="wk${p!=null?" done":""}">
+      <div class="wn">S${w.n}</div>
+      <div class="wd">${w.c}</div>
+      <div class="wp" style="${p!=null?"":"color:#2E1F1F"}">${p!=null?p+"pt":"—"}</div>
+    </div>`;
+  }).join("");
+
+  const detail=Object.entries(saved).sort(([a],[b])=>Number(a)-Number(b)).map(([w,data])=>{
+    const wInfo=WEEKS[Number(w)-1];
+    const rows=TASKS.filter(t=>(data.tasks?.[t.id]||0)>0).map(t=>{
+      const v=data.tasks[t.id], earned=calcPts(t,v);
+      return `<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #2E1F1F;color:${earned<0?"#E07070":"inherit"}">
+        <span>${t.label}${t.type!=="check"?" (×"+v+")":""}</span>
+        <span style="font-weight:700">${earned>0?"+":""}${earned}</span>
+      </div>`;
+    }).join("");
+    return `<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div><div style="font-weight:700;color:#C9A84C">Semana ${w}</div>
+        <div style="font-size:11px;color:#9A8A80">Fecha ${wInfo?.c}</div></div>
+        <div style="font-size:20px;font-weight:700;color:#E8C97A">${data.total} pts</div>
+      </div>${rows}
+    </div>`;
+  }).join("");
+  document.getElementById("hist-detail").innerHTML=detail;
+}
+
+// ── Logout ────────────────────────────────────────────────────
+function handleLogout(){
+  state.member=null; state.saved={};
+  document.getElementById("sel-member").value="";
+  document.getElementById("sel-team").style.display="none";
+  document.getElementById("btn-acessar").disabled=true;
+  showView("v-home");
+}
+
+// ── Admin PIN ─────────────────────────────────────────────────
+function handlePin(){
+  const pin=document.getElementById("pin-input").value;
+  if(pin===ADMIN_PIN){
+    document.getElementById("pin-input").value="";
+    renderAdminWeeks();
+    loadAdminData();
+    showView("v-admin");
+  } else {
+    showToast("PIN incorreto","err");
+    document.getElementById("pin-input").value="";
+  }
+}
+
+// ── Admin ─────────────────────────────────────────────────────
+function setAdminTab(tab){
+  document.getElementById("admin-ranking").style.display=tab==="ranking"?"block":"none";
+  document.getElementById("admin-membros").style.display=tab==="membros"?"block":"none";
+  document.getElementById("tab-ranking").className="btn sm"+(tab==="ranking"?"":" out");
+  document.getElementById("tab-membros").className="btn sm"+(tab==="membros"?"":" out");
+}
+
+function renderAdminWeeks(){
+  document.getElementById("admin-weeks").innerHTML=WEEKS.map(w=>`
+    <div class="wk${state.cw===w.n?" act":""}" onclick="setAdminWeek(${w.n})" style="cursor:pointer">
+      <div class="wn">S${w.n}</div>
+      <div class="wd">${w.c}</div>
+    </div>`).join("");
+}
+
+async function setAdminWeek(w){
+  state.cw=w;
+  renderAdminWeeks();
+  try{await api({action:"saveConfig",config:JSON.stringify({currentWeek:w})})}catch(e){}
+  showToast("Semana "+w+" ativada!");
+}
+
+async function loadAdminData(){
+  document.getElementById("admin-placar").innerHTML='<div class="lbl">Placar dos times</div><div style="text-align:center;padding:20px;color:#9A8A80"><span class="spin"></span> Carregando...</div>';
+  document.getElementById("admin-individual").innerHTML='<div class="lbl">Ranking individual</div><div style="text-align:center;padding:20px;color:#9A8A80"><span class="spin"></span> Carregando...</div>';
+  try{
+    const r=await api({action:"loadAll"});
+    if(r?.ok && r.data){
+      state.adminData=r.data;
+      renderAdminPlacar();
+      renderAdminIndividual();
+      showToast("Placar atualizado!");
+    } else {
+      showToast("Erro ao carregar","err");
+    }
+  }catch(e){showToast("Erro de conexão","err")}
+}
+
+function renderAdminPlacar(){
+  const teamTotals=TEAMS.map(t=>{
+    const members=MEMBERS.filter(m=>ASSIGN[slugify(m)]===t.id);
+    const total=members.reduce((s,m)=>s+(Number(state.adminData[m]?.total)||0),0);
+    return{...t,members,total};
+  }).sort((a,b)=>b.total-a.total);
+  const medals=["🥇","🥈","🥉","4º","5º"];
+  document.getElementById("admin-placar").innerHTML='<div class="lbl">Placar dos times</div>'+
+    teamTotals.map((t,i)=>`
+      <div class="rank-row">
+        <div class="rank-num${i<3?" g"+(i+1):""}" style="font-size:16px">${medals[i]}</div>
+        <div class="tm-dot" style="background:${t.bg}"></div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:14px">${t.label}</div>
+          <div style="font-size:11px;color:#9A8A80">${t.members.length} membros</div>
+        </div>
+        <div style="font-weight:700;font-size:18px;color:#E8C97A">${t.total} pts</div>
+      </div>`).join("");
+}
+
+function renderAdminIndividual(){
+  const sorted=MEMBERS.map(m=>({
+    name:m,teamId:ASSIGN[slugify(m)],total:Number(state.adminData[m]?.total)||0
+  })).sort((a,b)=>b.total-a.total);
+  document.getElementById("admin-individual").innerHTML='<div class="lbl">Ranking individual</div>'+
+    sorted.map((m,i)=>{
+      const t=getTeam(m.teamId);
+      return `<div class="rank-row">
+        <div class="rank-num" style="font-size:13px">${i+1}º</div>
+        <div class="tm-dot" style="background:${t?.bg||"#2E1F1F"}"></div>
+        <div style="flex:1;font-size:13px">${m.name}</div>
+        <div style="font-weight:700;font-size:14px;color:#E8C97A">${m.total} pts</div>
+      </div>`;
+    }).join("");
+}
+
+// ── View change hooks ─────────────────────────────────────────
+const _showView=showView;
+window.showView=function(id){
+  if(id==="v-history") renderHistory();
+  _showView(id);
+};
+
+init();
+</script>
+</body>
+</html>
