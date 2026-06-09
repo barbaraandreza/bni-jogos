@@ -112,6 +112,13 @@ select:focus,input:focus{border-color:var(--g)}
           <span style="font-size:12px;color:#9A8A80">Seu time:</span>
           <span id="sel-team-badge" class="badge"></span>
         </div>
+        <div id="sel-pin-wrap" style="display:none;margin-top:12px">
+          <div class="lbl">Seu PIN</div>
+          <input type="password" id="sel-pin" maxlength="4" placeholder="••••"
+            style="text-align:center;font-size:22px;letter-spacing:8px;font-weight:700"
+            oninput="onPinInput()" onkeydown="if(event.key==='Enter')handleLogin()">
+          <div id="sel-pin-err" style="display:none;font-size:12px;color:#E07070;margin-top:6px;text-align:center">PIN incorreto. Tente novamente.</div>
+        </div>
         <button class="btn" id="btn-acessar" onclick="handleLogin()" disabled>Acessar</button>
       </div>
     </div>
@@ -239,7 +246,42 @@ select:focus,input:focus{border-color:var(--g)}
 
 <script>
 const SHEET="https://script.google.com/macros/s/AKfycbw0U6qAZewTeLlCD5_UIYNjelsJ3oX_6IzNX6QqoMEXziJWXRDHedwOWOxWyXVzwepx/exec";
-const ADMIN_PIN="1234";
+const ADMIN_PIN="5210";
+const PINS = {
+  "Adriana Lima": "2824",
+  "Alice Crepaldi": "1409",
+  "Ana Catarina": "5506",
+  "Ana Júlia Brandão": "5012",
+  "André Dias": "4657",
+  "Ângela Luisa Ferreira": "3286",
+  "Ardilene Rodrigues": "2679",
+  "Bárbara Andreza": "9935",
+  "Bernardo Bracher": "2424",
+  "Camila Fontes": "7912",
+  "Douglas Andrade Maia": "1520",
+  "Eduardo Viana": "1488",
+  "Elis Xavier": "2535",
+  "Elizabete Godinho": "4582",
+  "Emanuel Leite": "4811",
+  "Euler Costa": "9279",
+  "Gardeny Coura": "1434",
+  "Glauber Fonseca": "4257",
+  "Guilherme Ribeiro": "9928",
+  "Ingrid Figueiredo": "7873",
+  "Jacqueline Mesquita": "4611",
+  "João Gabriel Santana": "8359",
+  "Joaquim Correa": "5557",
+  "Marcelo Labarrère": "1106",
+  "Maria Cristina": "3615",
+  "Mariana Gontijo Couto": "7924",
+  "Marli Assis": "6574",
+  "Natielly Danig": "5552",
+  "Nina Hangai": "3547",
+  "Nina Peixoto": "4527",
+  "Rafaella Freire Dutra": "6514",
+  "Rodrigo Ferrarez": "2674",
+  "Vinícius Villaca": "2519",
+};
 
 const MEMBERS=["Adriana Lima","Alice Crepaldi","Ana Catarina","Ana Júlia Brandão","André Dias","Ângela Luisa Ferreira","Ardilene Rodrigues","Bárbara Andreza","Bernardo Bracher","Camila Fontes","Douglas Andrade Maia","Eduardo Viana","Elis Xavier","Elizabete Godinho","Emanuel Leite","Euler Costa","Gardeny Coura","Glauber Fonseca","Guilherme Ribeiro","Ingrid Figueiredo","Jacqueline Mesquita","João Gabriel Santana","Joaquim Correa","Marcelo Labarrère","Maria Cristina","Mariana Gontijo Couto","Marli Assis","Natielly Danig","Nina Hangai","Nina Peixoto","Rafaella Freire Dutra","Rodrigo Ferrarez","Vinícius Villaca"];
 
@@ -282,7 +324,7 @@ const ASSIGN={
   [slugify("Guilherme Ribeiro")]:"marrocos",[slugify("Ardilene Rodrigues")]:"marrocos",
   [slugify("Rafaella Freire Dutra")]:"marrocos",[slugify("André Dias")]:"marrocos",
   [slugify("Emanuel Leite")]:"japao",[slugify("Natielly Danig")]:"japao",
-  [slugify("Glauber Fonseca")]:"japao",[slugify("Nina Hangai")]:"japao",
+  [slugify("Glauber Fonseca")]:"japao",[slugify("Euler Costa")]:"japao",
   [slugify("Maria Cristina")]:"japao",[slugify("Jacqueline Mesquita")]:"japao",
   [slugify("Eduardo Viana")]:"suica",[slugify("Bárbara Andreza")]:"suica",
   [slugify("Nina Peixoto")]:"suica",[slugify("Rodrigo Ferrarez")]:"suica",
@@ -290,9 +332,9 @@ const ASSIGN={
   [slugify("Joaquim Correa")]:"suica",
   [slugify("Adriana Lima")]:"canada",[slugify("Elis Xavier")]:"canada",
   [slugify("Mariana Gontijo Couto")]:"canada",[slugify("Marli Assis")]:"canada",
-  [slugify("Camila Fontes")]:"canada",[slugify("Elizabete Godinho")]:"canada",
+  [slugify("Camila Fontes")]:"canada",[slugify("Elizabete Godinho")]:"senegal",
   [slugify("Ingrid Figueiredo")]:"canada",
-  [slugify("Bernardo Bracher")]:"marrocos",[slugify("Euler Costa")]:"senegal",
+  [slugify("Bernardo Bracher")]:"marrocos",[slugify("Nina Hangai")]:"senegal",
   [slugify("Alice Crepaldi")]:"senegal",[slugify("João Gabriel Santana")]:"senegal",
   [slugify("Ana Catarina")]:"senegal",[slugify("Gardeny Coura")]:"senegal",
   [slugify("Douglas Andrade Maia")]:"senegal",
@@ -377,6 +419,9 @@ function init(){
 function onMemberSelect(){
   const m=document.getElementById("sel-member").value;
   const teamDiv=document.getElementById("sel-team");
+  const pinWrap=document.getElementById("sel-pin-wrap");
+  const pinInput=document.getElementById("sel-pin");
+  const pinErr=document.getElementById("sel-pin-err");
   const btn=document.getElementById("btn-acessar");
   if(m){
     const tid=ASSIGN[slugify(m)];
@@ -385,16 +430,33 @@ function onMemberSelect(){
     const t=getTeam(tid);
     if(t){document.getElementById("sel-team-badge").style.background=t.bg;document.getElementById("sel-team-badge").style.color=t.fg}
     teamDiv.style.display="flex";
-    btn.disabled=false;
+    pinWrap.style.display="block";
+    pinInput.value="";
+    pinErr.style.display="none";
+    btn.disabled=true;
   } else {
     teamDiv.style.display="none";
+    pinWrap.style.display="none";
     btn.disabled=true;
   }
+}
+function onPinInput(){
+  const pin=document.getElementById("sel-pin").value;
+  const btn=document.getElementById("btn-acessar");
+  document.getElementById("sel-pin-err").style.display="none";
+  btn.disabled=pin.length!==4;
 }
 
 async function handleLogin(){
   const m=document.getElementById("sel-member").value;
   if(!m)return;
+  const pin=document.getElementById("sel-pin").value;
+  if(PINS[m] && pin!==PINS[m]){
+    document.getElementById("sel-pin-err").style.display="block";
+    document.getElementById("sel-pin").value="";
+    document.getElementById("btn-acessar").disabled=true;
+    return;
+  }
   const btn=document.getElementById("btn-acessar");
   btn.disabled=true;
   btn.innerHTML='<span class="spin"></span>Carregando...';
